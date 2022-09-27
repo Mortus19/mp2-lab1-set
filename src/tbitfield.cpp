@@ -19,7 +19,8 @@ int  MemLen; // к-во эл-тов Мем для представления б�
 TBitField::TBitField(int len)
 {
     if (len < 0) {
-        throw "Len must be not negative";
+        cout << "yes!";
+        throw exception();
     }
     BitLen = len;
     MemLen = (len + (sizeof(TELEM) * 8) - 1) / (sizeof(TELEM) * 8);
@@ -57,15 +58,15 @@ TBitField::~TBitField()
 
 int TBitField::GetMemIndex(const int n) const // индекс Мем для бита n
 {
-    if (n < 0)
-        throw "NOT GET INDEX";
+    if (n < 0 || n>BitLen)
+        throw exception();
     return (n + ((sizeof(TELEM) * 8)) - 1) / (sizeof(TELEM) * 8);
 }
 
 TELEM TBitField::GetMemMask(const int n) const // битовая маска для бита n
 {
-    if (n < 0)
-        throw "NOT GET MASK";
+    if (n < 0 || n>sizeof(TELEM)*8)
+        throw exception();
     return (1 << n);
 }
 
@@ -78,8 +79,8 @@ int TBitField::GetLength(void) const // получить длину (к-во б�
 
 void TBitField::SetBit(const int n) // установить бит
 {
-    if(n < 0)
-        throw "NOT SET BIT";
+    if(n < 0 || n>BitLen)
+        throw exception();
     int index = GetMemIndex(n);
     int number_bit = n - (n / (sizeof(TELEM) * 8)) * (sizeof(TELEM) * 8);
     pMem[index] |= GetMemMask(number_bit);
@@ -87,8 +88,8 @@ void TBitField::SetBit(const int n) // установить бит
 
 void TBitField::ClrBit(const int n) // очистить бит
 {
-    if (n < 0)
-        throw "NOT CLEAR BIT";
+    if (n < 0 || n>BitLen)
+        throw exception();
     int index = GetMemIndex(n);
     int number_bit = n - (n / (sizeof(TELEM) * 8)) * (sizeof(TELEM) * 8);
     pMem[index] &= ~(GetMemMask(number_bit));
@@ -96,8 +97,8 @@ void TBitField::ClrBit(const int n) // очистить бит
 
 int TBitField::GetBit(const int n) const // получить значение бита
 {
-    if (n < 0)
-        throw "NOT GET BIT";
+    if (n < 0 || n>BitLen)
+        throw exception();
     int index = GetMemIndex(n);
     int number_bit = n - (n / (sizeof(TELEM) * 8)) * (sizeof(TELEM) * 8);
     return pMem[index] & GetMemMask(number_bit);
@@ -192,9 +193,14 @@ istream &operator>>(istream &istr, TBitField &bf) // ввод
 }
 
 ostream &operator<<(ostream &ostr, const TBitField &bf) // вывод
-{
+{   
+    ostr <<"len:"<< bf.BitLen << '\n';
     for (int i = 0; i < bf.BitLen; i++) {
-        ostr << bf.GetBit(i + 1)<<' ';
+        if (bf.GetBit(i))
+            ostr << "1";
+        else
+            ostr << "0";
+        ostr << ' ';
     }
 
     return ostr;
