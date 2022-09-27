@@ -11,46 +11,81 @@
 static const int FAKE_INT = -1;
 static TBitField FAKE_BITFIELD(1);
 
+/*
+int  BitLen; // длина битового поля - макс. к-во битов
+TELEM* pMem; // память для представления битового поля
+int  MemLen; // к-во эл-тов Мем для представления бит.поля
+*/
 TBitField::TBitField(int len)
 {
+    if (len < 0) {
+        throw "Len must be not negative";
+    }
+    
+    BitLen = len;
+    MemLen = (len + (sizeof(TELEM)*8) - 1) / (sizeof(TELEM) * 8);
+    pMem = new TELEM[MemLen];
+    for (int i = 0; i < MemLen; i++) {
+        pMem[i] = 0;
+    }
+
+
 }
 
 TBitField::TBitField(const TBitField &bf) // конструктор копирования
 {
+    BitLen = bf.BitLen;
+    MemLen = bf.MemLen;
+    pMem = new TELEM[MemLen];
+    for (int i = 0; i < MemLen; i++) {
+        pMem[i] = bf.pMem[i];
+    }
 }
 
 TBitField::~TBitField()
 {
+
+    if (pMem!=nullptr) {
+        delete pMem;
+    }
 }
 
 int TBitField::GetMemIndex(const int n) const // индекс Мем для бита n
 {
-    return FAKE_INT;
+    return (n + ((sizeof(TELEM) * 8)) - 1) / (sizeof(TELEM) * 8);
 }
 
 TELEM TBitField::GetMemMask(const int n) const // битовая маска для бита n
 {
-    return FAKE_INT;
+    return (1 << n);
 }
 
 // доступ к битам битового поля
 
 int TBitField::GetLength(void) const // получить длину (к-во битов)
 {
-  return FAKE_INT;
+  return BitLen;
 }
 
 void TBitField::SetBit(const int n) // установить бит
 {
+    int index = GetMemIndex(n);
+    int number_bit = n - (n / (sizeof(TELEM) * 8)) * (sizeof(TELEM) * 8);
+    pMem[index] |= GetMemMask(number_bit);
 }
 
 void TBitField::ClrBit(const int n) // очистить бит
 {
+    int index = GetMemIndex(n);
+    int number_bit = n - (n / (sizeof(TELEM) * 8)) * (sizeof(TELEM) * 8);
+    pMem[index] &= ~(GetMemMask(number_bit));
 }
 
 int TBitField::GetBit(const int n) const // получить значение бита
 {
-  return FAKE_INT;
+    int index = GetMemIndex(n);
+    int number_bit = n - (n / (sizeof(TELEM) * 8)) * (sizeof(TELEM) * 8);
+    return pMem[index] & GetMemMask(number_bit);
 }
 
 // битовые операции
