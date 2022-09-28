@@ -11,22 +11,17 @@
 static const int FAKE_INT = -1;
 static TBitField FAKE_BITFIELD(1);
 
-/*
-int  BitLen; // длина битового поля - макс. к-во битов
-TELEM* pMem; // память для представления битового поля
-int  MemLen; // к-во эл-тов Мем для представления бит.поля
-*/
+
 TBitField::TBitField(int len)
 {
     if (len < 0) {
-        cout << "yes!";
         throw exception();
     }
     BitLen = len;
-    MemLen = (len + (sizeof(TELEM) * 8) - 1) / (sizeof(TELEM) * 8);
+    int s = (sizeof(TELEM) * 8);
+    MemLen = (len + s - 1) / s;
     if (len == 0) {
         pMem = nullptr;
-        
     }
     else {
         pMem = new TELEM[MemLen];
@@ -34,8 +29,6 @@ TBitField::TBitField(int len)
             pMem[i] = 0;
         }
     }
-
-
 }
 
 TBitField::TBitField(const TBitField &bf) // конструктор копирования
@@ -50,17 +43,18 @@ TBitField::TBitField(const TBitField &bf) // конструктор копиро
 
 TBitField::~TBitField()
 {
-
+    
     if (pMem!=nullptr) {
-        delete pMem;
+        delete []pMem;
     }
+    
 }
 
 int TBitField::GetMemIndex(const int n) const // индекс Мем для бита n
 {
     if (n < 0 || n>BitLen)
         throw exception();
-    return (n + ((sizeof(TELEM) * 8)) - 1) / (sizeof(TELEM) * 8);
+    return n / (sizeof(TELEM) * 8);
 }
 
 TELEM TBitField::GetMemMask(const int n) const // битовая маска для бита n
@@ -97,11 +91,14 @@ void TBitField::ClrBit(const int n) // очистить бит
 
 int TBitField::GetBit(const int n) const // получить значение бита
 {
-    if (n < 0 || n>BitLen)
+    if (n < 0 || n>=BitLen)
         throw exception();
     int index = GetMemIndex(n);
-    int number_bit = n - (n / (sizeof(TELEM) * 8)) * (sizeof(TELEM) * 8);
-    return pMem[index] & GetMemMask(number_bit);
+
+    int number_bit = n - index * (sizeof(TELEM) * 8);
+    if(pMem[index] & GetMemMask(number_bit))
+        return 1;
+    return 0;
 }
 
 // битовые операции
@@ -177,7 +174,7 @@ TBitField TBitField::operator~(void) // отрицание
     int last_number_bit = BitLen - (MemLen - 1) * (sizeof(TELEM) * 8);
     tmp.pMem[MemLen - 1] = ~pMem[MemLen - 1];
     if (last_number_bit < sizeof(TELEM) * 8) {
-        int mask = 1 << (last_number_bit + 1) - 1;
+        int mask = (1 << (last_number_bit)) - 1;
         tmp.pMem[MemLen - 1] &= mask;
     }
     return tmp;

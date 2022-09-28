@@ -12,13 +12,20 @@ static const int FAKE_INT = -1;
 static TBitField FAKE_BITFIELD(1);
 static TSet FAKE_SET(1);
 
-TSet::TSet(int mp) : BitField(-1)
+/*
+int MaxPower;       
+TBitField BitField;
+*/
+
+TSet::TSet(int mp) : BitField(mp)
 {
+
 }
 
 // конструктор копирования
 TSet::TSet(const TSet &s) : BitField(-1)
 {
+    
 }
 
 // конструктор преобразования типа

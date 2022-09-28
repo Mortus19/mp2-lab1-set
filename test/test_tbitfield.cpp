@@ -21,9 +21,9 @@ TEST(TBitField, new_bitfield_is_set_to_zero)
   int sum = 0;
   for (int i = 0; i < bf.GetLength(); i++)
   {
+
     sum += bf.GetBit(i);
   }
-
   EXPECT_EQ(0, sum);
 }
 
@@ -52,6 +52,7 @@ TEST(TBitField, can_clear_bit)
 
 TEST(TBitField, throws_when_create_bitfield_with_negative_length)
 {
+
   ASSERT_ANY_THROW(TBitField bf(-3));
 }
 
@@ -233,7 +234,6 @@ TEST(TBitField, can_invert_bitfield)
 
   // expNegBf = 10
   expNegBf.SetBit(0);
-
   EXPECT_EQ(expNegBf, negBf);
 }
 
