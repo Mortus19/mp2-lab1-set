@@ -295,3 +295,15 @@ TEST(TSet, check_negation_operator)
 
   EXPECT_EQ(expSet, set1);
 }
+
+TEST(TBitField, my_check_invers)
+{
+    int size = 32;
+    TBitField expSet(size);
+    TBitField set(size);
+    for (int i = 0; i < size; i++) {
+        set.SetBit(i);
+    }
+    TBitField set1 = ~set;
+    EXPECT_EQ(expSet, set1);
+}

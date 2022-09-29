@@ -18,34 +18,20 @@ TSet::TSet(int mp) : BitField(mp)
 }
 
 // конструктор копирования
-TSet::TSet(const TSet &s) : BitField(s.MaxPower)
+TSet::TSet(const TSet &s) : BitField(s.BitField)
 {
     MaxPower = s.MaxPower;
-    for (int i = 0; i < MaxPower; i++) {
-        if (s.BitField.GetBit(i)) {
-            BitField.SetBit(i);
-        }
-    }
 }
 
 // конструктор преобразования типа
-TSet::TSet(const TBitField &bf) : BitField(bf.GetLength())
+TSet::TSet(const TBitField &bf) : BitField(bf)
 {
     MaxPower = bf.GetLength();
-    for (int i = 0; i < MaxPower; i++) {
-        if (bf.GetBit(i)) {
-            BitField.SetBit(i);
-        }
-    }
 }
 
 TSet::operator TBitField()
 {
-    TBitField tmp(this->MaxPower);
-    for (int i = 0; i < MaxPower; i++) {
-        if (BitField.GetBit(i))
-            tmp.SetBit(i);
-    }
+    TBitField tmp(BitField);
     return tmp;
 }
 
@@ -56,6 +42,8 @@ int TSet::GetMaxPower(void) const // получить макс. к-во эл-т�
 
 int TSet::IsMember(const int Elem) const // элемент множества?
 {
+    if (Elem < 0 || Elem>MaxPower)
+        throw "Eror IsMember";
     if (BitField.GetBit(Elem))
         return 1;
     return 0;
@@ -63,11 +51,15 @@ int TSet::IsMember(const int Elem) const // элемент множества?
 
 void TSet::InsElem(const int Elem) // включение элемента множества
 {
+    if (Elem < 0 || Elem>MaxPower)
+        throw "Eror InsElem";
     BitField.SetBit(Elem);
 }
 
 void TSet::DelElem(const int Elem) // исключение элемента множества
 {
+    if (Elem < 0 || Elem>MaxPower)
+        throw "Eror DelElem";
     BitField.ClrBit(Elem);
 }
 
@@ -114,7 +106,7 @@ TSet TSet::operator-(const int Elem) // разность с элементом
 {
     TSet tmp(max(MaxPower, Elem));
     tmp.BitField = BitField | tmp.BitField;
-    if (tmp.BitField.GetBit(Elem) == 1)
+    if (tmp.BitField.GetBit(Elem))
         tmp.BitField.ClrBit(Elem);
     return tmp;
 }
@@ -137,7 +129,8 @@ TSet TSet::operator~(void) // дополнение
 
 istream &operator>>(istream &istr, TSet &s) // ввод
 {
-    
+    istr >> s.BitField;
+    s.MaxPower = s.BitField.GetLength();
     return istr;
 }
 
